@@ -1,21 +1,26 @@
 
-import sys
+import csv
+import os
 
-clients = [
-    {
-        'name': 'Pablo',
-        'company': 'Google',
-        'email': 'pablo@google.com',
-        'position': 'Software Engineer',
-    },
-    {
-        'name': 'Ricardo',
-        'company': 'Facebook',
-        'email': 'ricardo@facebook.com',
-        'position': 'Data Engineer',
-    },
-]
+CLIENTS_TABLE = '.client.csv'
+CLIENT_SCHEMA = ['name', 'company', 'email', 'position']
+clients = []
+
+def _initialize_client_from_storage():
+    with open(CLIENTS_TABLE, mode='r') as f:
+        reader = csv.DictReader(f, fieldnames=CLIENT_SCHEMA)
+        
+        for row in reader:
+            clients.append(row)
     
+
+def _save_clients_to_storage():
+    tmp_table_name = '{}.tmp'.format(CLIENTS_TABLE)
+    with open(tmp_table_name, mode='w') as f:
+        writer = csv.DictWriter(f, fieldnames=CLIENT_SCHEMA)
+        writer.writerows(clients)
+        os.remove(CLIENTS_TABLE)
+        os.rename(tmp_table_name, CLIENTS_TABLE)
 
 def list_clients():
     print('uid |  name  | company  | email  | position ')
@@ -133,6 +138,7 @@ def _get_client_from_user():
 
 
 if __name__ == '__main__':
+    _initialize_client_from_storage()
     _print_welcome()
 
     command = input().upper()
@@ -140,18 +146,14 @@ if __name__ == '__main__':
     if command == 'C':
         client = _get_client_from_user()
         create_clients(client)
-        list_clients()
     elif command == 'U':
         client_id = int(_get_client_field('id'))
         updated_client = _get_client_from_user()
-
         update_client(client_id, updated_client)
-        list_clients()
     elif command == 'D':
         client_id = int(_get_client_field('id'))
 
         delete_client(client_id)
-        list_clients()
     elif command == 'L':
         list_clients()
     elif command == 'S':
@@ -164,3 +166,4 @@ if __name__ == '__main__':
             _print_not_name_in_client_list(client_name)
     else:
         _print_invalid()
+    _save_clients_to_storage()
