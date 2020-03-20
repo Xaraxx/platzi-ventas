@@ -152,7 +152,6 @@ if __name__ == '__main__':
         update_client(client_id, updated_client)
     elif command == 'D':
         client_id = int(_get_client_field('id'))
-
         delete_client(client_id)
     elif command == 'L':
         list_clients()
